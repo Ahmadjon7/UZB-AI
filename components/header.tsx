@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -10,7 +10,7 @@ import { useAuth } from "@/lib/auth-context"
 import { useLanguage } from "@/lib/language-context"
 import { Menu, X, User, LogOut, MessageSquare, History, Settings } from "lucide-react"
 
-export function Header() {
+function HeaderContent() {
   const { user, logout } = useAuth()
   const { t } = useLanguage()
   const pathname = usePathname()
@@ -55,25 +55,35 @@ export function Header() {
               </Link>
             )
           })}
-        </nav>
 
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <LanguageSwitcher />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <LanguageSwitcher />
+          </div>
 
           {user ? (
-            <div className="hidden md:flex items-center gap-2">
-              <Link href="/settings">
-                <Button variant="ghost" size="icon">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full"
+                asChild
+              >
+                <Link href="/settings">
                   <User className="h-5 w-5" />
-                </Button>
-              </Link>
-              <Button variant="ghost" size="icon" onClick={logout}>
+                </Link>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => logout()}
+                className="text-muted-foreground hover:text-foreground"
+              >
                 <LogOut className="h-5 w-5" />
               </Button>
             </div>
           ) : (
-            <div className="hidden md:flex items-center gap-2">
+            <div className="flex items-center gap-2">
               <Link href="/login">
                 <Button variant="ghost">{t("login")}</Button>
               </Link>
@@ -82,79 +92,107 @@ export function Header() {
               </Link>
             </div>
           )}
+        </nav>
 
-          {/* Mobile menu button */}
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMobileMenu}>
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </Button>
-        </div>
+        {/* Mobile Menu Button */}
+        <button
+          className="md:hidden p-2 text-muted-foreground hover:text-foreground"
+          onClick={toggleMobileMenu}
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
+        </button>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden">
+        <div className="md:hidden border-t">
           <div className="container py-4 space-y-4">
-            {navItems.map((item) => {
-              if (item.authRequired && !user) return null
+            <nav className="flex flex-col gap-4">
+              {navItems.map((item) => {
+                if (item.authRequired && !user) return null
 
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center gap-2 p-2 rounded-md ${
-                    pathname === item.href ? "bg-muted text-primary" : "text-muted-foreground"
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <item.icon className="h-5 w-5" />
-                  {item.label}
-                </Link>
-              )
-            })}
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-2 p-2 rounded-md ${
+                      pathname === item.href
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    {item.label}
+                  </Link>
+                )
+              })}
+            </nav>
 
-            {user ? (
-              <>
-                <Link
-                  href="/settings"
-                  className="flex items-center gap-2 p-2 rounded-md text-muted-foreground"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <User className="h-5 w-5" />
-                  {t("profile")}
-                </Link>
-                <button
-                  className="flex items-center gap-2 p-2 rounded-md text-muted-foreground w-full text-left"
-                  onClick={() => {
-                    logout()
-                    setMobileMenuOpen(false)
-                  }}
-                >
-                  <LogOut className="h-5 w-5" />
-                  {t("logout")}
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="flex items-center justify-center p-2 rounded-md text-muted-foreground"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {t("login")}
-                </Link>
-                <Link
-                  href="/register"
-                  className="flex items-center justify-center p-2 rounded-md bg-primary text-primary-foreground"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {t("register")}
-                </Link>
-              </>
-            )}
+            <div className="flex items-center gap-4">
+              <ThemeToggle />
+              <LanguageSwitcher />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              {user ? (
+                <>
+                  <Link
+                    href="/settings"
+                    className="flex items-center gap-2 p-2 rounded-md text-muted-foreground hover:text-foreground"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <User className="h-5 w-5" />
+                    {t("settings")}
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    className="justify-start gap-2"
+                    onClick={() => {
+                      logout()
+                      setMobileMenuOpen(false)
+                    }}
+                  >
+                    <LogOut className="h-5 w-5" />
+                    {t("logout")}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="flex items-center justify-center p-2 rounded-md text-muted-foreground"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t("login")}
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="flex items-center justify-center p-2 rounded-md bg-primary text-primary-foreground"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t("register")}
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}
     </header>
+  )
+}
+
+export function Header() {
+  return (
+    <Suspense fallback={<div className="h-16 border-b bg-background/95" />}>
+      <HeaderContent />
+    </Suspense>
   )
 }
 

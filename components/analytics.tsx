@@ -1,19 +1,31 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, Suspense } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 
-export function Analytics() {
+function AnalyticsContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
   useEffect(() => {
-    // This is where you would typically add your analytics code
-    // For example, Google Analytics or similar
-    const url = pathname + searchParams.toString()
-    console.log(`Page view: ${url}`)
+    try {
+      const url = pathname + searchParams.toString()
+      console.log(`Page view: ${url}`)
+    } catch (error) {
+      console.error('Analytics error:', error)
+    }
   }, [pathname, searchParams])
 
   return null
 }
+
+export function Analytics() {
+  return (
+    <Suspense fallback={null}>
+      <AnalyticsContent />
+    </Suspense>
+  )
+}
+
+export default Analytics
 

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
@@ -13,7 +13,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from "@/components/ui/use-toast"
 import { Header } from "@/components/header"
 
-export default function RegisterPage() {
+function RegisterContent() {
   const { register, loading } = useAuth()
   const { t } = useLanguage()
   const { toast } = useToast()
@@ -69,7 +69,7 @@ export default function RegisterPage() {
 
     try {
       await register(name, email, password)
-      router.push("/chat")
+      router.push("/verify-email")
     } catch (error) {
       toast({
         title: t("errorOccurred"),
@@ -86,7 +86,9 @@ export default function RegisterPage() {
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">{t("register")}</CardTitle>
-            <CardDescription className="text-center">Create an account to get started with UZB AI</CardDescription>
+            <CardDescription className="text-center">
+              Create an account to get started
+            </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
@@ -99,7 +101,7 @@ export default function RegisterPage() {
                 </label>
                 <Input
                   id="name"
-                  type="text"
+                  placeholder="John Doe"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   disabled={loading}
@@ -153,15 +155,17 @@ export default function RegisterPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   disabled={loading}
                 />
-                {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
+                {errors.confirmPassword && (
+                  <p className="text-sm text-destructive">{errors.confirmPassword}</p>
+                )}
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col space-y-4">
+            <CardFooter className="flex flex-col gap-4">
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Loading..." : t("register")}
+                {loading ? t("registering") : t("register")}
               </Button>
-              <p className="text-center text-sm text-muted-foreground">
-                Already have an account?{" "}
+              <p className="text-sm text-center text-muted-foreground">
+                {t("haveAccount")}{" "}
                 <Link href="/login" className="text-primary hover:underline">
                   {t("login")}
                 </Link>
@@ -171,6 +175,21 @@ export default function RegisterPage() {
         </Card>
       </main>
     </div>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">Loading...</div>
+        </main>
+      </div>
+    }>
+      <RegisterContent />
+    </Suspense>
   )
 }
 

@@ -59,9 +59,7 @@ function LoginContent() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Suspense fallback={<div className="h-16 border-b bg-background/95" />}>
-        <Header />
-      </Suspense>
+      <Header />
       <main className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
@@ -106,12 +104,12 @@ function LoginContent() {
                 {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col space-y-4">
+            <CardFooter className="flex flex-col gap-4">
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Loading..." : t("login")}
+                {loading ? t("loggingIn") : t("login")}
               </Button>
-              <p className="text-center text-sm text-muted-foreground">
-                Don&apos;t have an account?{" "}
+              <p className="text-sm text-center text-muted-foreground">
+                {t("noAccount")}{" "}
                 <Link href="/register" className="text-primary hover:underline">
                   {t("register")}
                 </Link>
@@ -126,7 +124,14 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">Loading...</div>
+        </main>
+      </div>
+    }>
       <LoginContent />
     </Suspense>
   )

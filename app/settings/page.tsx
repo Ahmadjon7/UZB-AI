@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { useLanguage } from "@/lib/language-context"
@@ -14,7 +14,7 @@ import { Header } from "@/components/header"
 import { useToast } from "@/components/ui/use-toast"
 import { Moon, Sun, Globe } from "lucide-react"
 
-export default function SettingsPage() {
+function SettingsContent() {
   const { user, loading: authLoading, updateProfile, updatePassword } = useAuth()
   const { t, language, setLanguage } = useLanguage()
   const { theme, setTheme } = useTheme()
@@ -258,6 +258,21 @@ export default function SettingsPage() {
         </div>
       </main>
     </div>
+  )
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">Loading...</div>
+        </main>
+      </div>
+    }>
+      <SettingsContent />
+    </Suspense>
   )
 }
 

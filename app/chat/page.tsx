@@ -210,7 +210,14 @@ function ChatContent() {
 
 export default function ChatPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">Loading...</div>
+        </main>
+      </div>
+    }>
       <ChatContent />
     </Suspense>
   )
