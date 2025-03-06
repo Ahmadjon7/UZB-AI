@@ -101,7 +101,7 @@ function RegisterContent() {
                 </label>
                 <Input
                   id="name"
-                  placeholder="John Doe"
+                  placeholder="Karimov Ahmadjon"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   disabled={loading}
