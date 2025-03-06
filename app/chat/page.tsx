@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Header } from "@/components/header"
-import { Send, Trash2, Save } from "lucide-react"
+import { Send, Trash2, Save, Copy } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 
 function ChatContent() {
@@ -118,6 +118,22 @@ function ChatContent() {
                   <div className="flex items-start gap-2">
                     <div className="text-sm font-medium">{message.role === "user" ? t("you") : "AI"}:</div>
                     <div className="flex-1">{message.content}</div>
+                    {message.role !== "user" && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => {
+                          navigator.clipboard.writeText(message.content)
+                          toast({
+                            title: "Copied to clipboard",
+                            duration: 2000,
+                          })
+                        }}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
