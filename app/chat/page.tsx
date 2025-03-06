@@ -155,7 +155,7 @@ function ChatContent() {
                   disabled={isLoading}
                   className="flex-1"
                 />
-                <Button type="submit" disabled={isLoading || input.trim() === ""}>
+                <Button type="submit" disabled={isLoading || input.trim() === ""} className="px-2 sm:px-4">
                   {isLoading ? (
                     <div className="typing-indicator">
                       <span>.</span>
@@ -164,8 +164,8 @@ function ChatContent() {
                     </div>
                   ) : (
                     <>
-                      <Send className="h-4 w-4 mr-2" />
-                      {t("sendMessage")}
+                      <Send className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">{t("sendMessage")}</span>
                     </>
                   )}
                 </Button>
